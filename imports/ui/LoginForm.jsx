@@ -5,14 +5,15 @@ export const LoginForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const submit = (e) => {
+  const sendLogin = (e) => {
     e.preventDefault();
 
+    // meteor自己的登入驗證
     Meteor.loginWithPassword(username, password);
   };
 
   return (
-    <form onSubmit={submit} className="login-form">
+    <form onSubmit={sendLogin} className="login-form">
       <label htmlFor="username">Username</label>
 
       <input
