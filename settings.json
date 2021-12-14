@@ -1,0 +1,8 @@
+{
+    "galaxy.meteor.com": {
+       "env": {
+         "MONGO_URL": "mongodb://six0860613:hWuKYRPtbATq3n5hY@SG-galaxycluster-38726.servers.mongodirector.com:27017,SG-galaxycluster-38727.servers.mongodirector.com:27017/nethercod-meteor-react-test-meteorapp-com?replicaSet=RS-galaxycluster-0&ssl=true"
+       }
+     }
+  }
+  
