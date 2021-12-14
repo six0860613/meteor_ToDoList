@@ -3,9 +3,10 @@ import { Meteor } from 'meteor/meteor';
 
 import { Task } from './Task.jsx';
 import { TaskForm } from './TaskForm.jsx';
-import { TaskCollection } from '../api/TaskCollection';
+import { TaskCollection } from '../db/TaskCollection';
 import { LoginForm } from './LoginForm';
 
+import '/imports/api/tasksMethods';
 import { useTracker } from 'meteor/react-meteor-data';
 
 export const App = () => {
@@ -21,37 +22,41 @@ export const App = () => {
     ...userFilter,
   };
 
-  const tasks = useTracker(() => {
-    if (!user) {
-      return [];
-    }
-    return TaskCollection.find(
-      hideCompleted ? hideCompletedFilter : {},
-      { sort: { createdAt: -1 } }
-    ).fetch();
-  });
+  const { tasks, pendingTasksCount, isLoading } =
+    useTracker(() => {
+      const noData = { tasks: [], pendingTasksCount: 0 };
+      if (!Meteor.user()) {
+        // no login user = no data
+        return noData;
+      }
+      const handler = Meteor.subscribe('tasks');
+      if (!handler.ready()) {
+        // 尚在讀取中
+        return { ...noData, isLoading: true };
+      }
 
-  const pendingTasksCount = useTracker(() => {
-    if (!user) {
-      return 0;
-    }
-    return TaskCollection.find(hideCompletedFilter).count();
-  });
+      const tasks = TaskCollection.find(
+        hideCompleted ? pendingOnlyFilter : userFilter,
+        { sort: { createdAt: -1 } }
+      ).fetch();
+      const pendingTasksCount = TaskCollection.find(
+        pendingOnlyFilter
+      ).count();
+
+      return { tasks, pendingTasksCount };
+    });
+
   const pendingTasksTitle = `${
     pendingTasksCount ? ` (${pendingTasksCount})` : ''
   }`;
 
   // checkbox切換
   const toggleChecked = ({ _id, isChecked }) => {
-    TaskCollection.update(_id, {
-      $set: {
-        isChecked: !isChecked,
-      },
-    });
+    Meteor.call('tasks.setIsChecked', _id, !isChecked);
   };
   // 移除task
   const deleteTask = (_id) => {
-    TaskCollection.remove(_id);
+    Meteor.call('tasks.remove', _id);
   };
 
   return (
@@ -72,7 +77,7 @@ export const App = () => {
               <div className="user" onClick={userLogout}>
                 {user.username} 🚪
               </div>
-              <TaskForm user={user} />
+              <TaskForm />
               <div className="filter">
                 <button
                   onClick={() =>
@@ -84,6 +89,10 @@ export const App = () => {
                     : 'Hide Completed'}
                 </button>
               </div>
+
+              {isLoading && (
+                <div className="loading">loading...</div>
+              )}
 
               <ul className="tasks">
                 {tasks.map((v) => (

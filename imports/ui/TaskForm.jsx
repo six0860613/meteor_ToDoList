@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { TaskCollection } from '../api/TaskCollection';
+import { Meteor } from 'meteor/meteor';
 
-export const TaskForm = ({ user }) => {
+export const TaskForm = () => {
   const [text, setText] = useState('');
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -9,11 +9,12 @@ export const TaskForm = ({ user }) => {
     if (!text) return; //沒打字就送出的檢查
 
     //新增一筆至task
-    TaskCollection.insert({
-      userId: user._id,
-      text: text.trim(), //移除空格
-      createdAt: new Date(),
-    });
+    // TaskCollection.insert({
+    //   userId: user._id,
+    //   text: text.trim(), //移除空格
+    //   createdAt: new Date(),
+    // });
+    Meteor.call('tasks.insert', text);
 
     setText(''); //clear input
   };

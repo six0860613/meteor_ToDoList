@@ -181,9 +181,19 @@ header {
 
 .user {
   display: flex;
-
   align-self: flex-end;
   cursor: pointer;
   margin: 8px 16px 0;
+  font-weight: bold;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  justify-content: center;
+  align-items: center;
+
   font-weight: bold;
 }
